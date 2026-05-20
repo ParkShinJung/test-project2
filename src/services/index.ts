@@ -3,3 +3,5 @@
  */
 
 export * from './user.service.interface';
+export * from './post.service.interface';
+export * from './post.service';
