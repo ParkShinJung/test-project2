@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사용자와 게시글 상세 ERD</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 14px;
+        }
+        .diagram-section {
+            margin-bottom: 40px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .legend {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f0f4ff;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+        .legend h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        .legend-item {
+            margin-bottom: 10px;
+            color: #555;
+            font-size: 14px;
+        }
+        .legend-item strong {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 사용자와 게시글 인터페이스 구조</h1>
+        <p class="subtitle">User-Post 관계도 및 데이터 모델 정의</p>
+        
+        <div class="diagram-section">
+            <div class="section-title">1. 엔티티 관계도 (ERD)</div>
+            <div class="mermaid">
+erDiagram
+    USER ||--o{ POST : "writes"
+    
+    USER {
+        string id PK "사용자 고유 ID"
+        string name "사용자 이름"
+        string email "사용자 이메일"
+        string phone "사용자 전화번호"
+        string address "사용자 주소"
+        boolean isActive "활성화 여부"
+        date createdAt "생성 날짜"
+        date updatedAt "수정 날짜"
+    }
+    
+    POST {
+        string id PK "게시글 고유 ID"
+        string title "게시글 제목"
+        string content "게시글 내용"
+        string authorId FK "작성자 ID"
+        string category "카테고리"
+        string[] tags "태그 목록"
+        int viewCount "조회수"
+        int likeCount "좋아요 수"
+        int commentCount "댓글 수"
+        boolean isPublished "공개 여부"
+        boolean isPinned "고정 여부"
+        date createdAt "생성 날짜"
+        date updatedAt "수정 날짜"
+        date deletedAt "삭제 날짜"
+    }
+            </div>
+        </div>
+
+        <div class="diagram-section">
+            <div class="section-title">2. 관계 설명</div>
+            <div class="legend">
+                <h3>🔗 User ↔ Post 관계</h3>
+                <div class="legend-item">
+                    <strong>관계 유형:</strong> One-to-Many (1:N)
+                </div>
+                <div class="legend-item">
+                    <strong>설명:</strong> 한 명의 사용자(User)는 여러 개의 게시글(Post)을 작성할 수 있습니다.
+                </div>
+                <div class="legend-item">
+                    <strong>외래키:</strong> Post.authorId → User.id
+                </div>
+                <div class="legend-item">
+                    <strong>카디널리티:</strong> User (1) : Post (0..*)
+                </div>
+            </div>
+        </div>
+
+        <div class="diagram-section">
+            <div class="section-title">3. USER 엔티티 상세</div>
+            <div class="legend">
+                <h3>📋 필드 정의</h3>
+                <div class="legend-item">
+                    <strong>id (PK):</strong> string - 사용자 고유 식별자 (UUID 또는 자동 생성)
+                </div>
+                <div class="legend-item">
+                    <strong>name:</strong> string - 사용자 이름 (필수)
+                </div>
+                <div class="legend-item">
+                    <strong>email:</strong> string - 사용자 이메일 (필수, 유니크)
+                </div>
+                <div class="legend-item">
+                    <strong>phone:</strong> string - 사용자 전화번호 (선택)
+                </div>
+                <div class="legend-item">
+                    <strong>address:</strong> string - 사용자 주소 (선택)
+                </div>
+                <div class="legend-item">
+                    <strong>isActive:</strong> boolean - 계정 활성화 여부 (기본값: true)
+                </div>
+                <div class="legend-item">
+                    <strong>createdAt:</strong> Date - 계정 생성 날짜 (자동)
+                </div>
+                <div class="legend-item">
+                    <strong>updatedAt:</strong> Date - 계정 수정 날짜 (자동)
+                </div>
+            </div>
+        </div>
+
+        <div class="diagram-section">
+            <div class="section-title">4. POST 엔티티 상세</div>
+            <div class="legend">
+                <h3>📋 필드 정의</h3>
+                <div class="legend-item">
+                    <strong>id (PK):</strong> string - 게시글 고유 식별자 (UUID 또는 자동 생성)
+                </div>
+                <div class="legend-item">
+                    <strong>title:</strong> string - 게시글 제목 (필수)
+                </div>
+                <div class="legend-item">
+                    <strong>content:</strong> string - 게시글 내용 (필수)
+                </div>
+                <div class="legend-item">
+                    <strong>authorId (FK):</strong> string - 작성자 ID (필수, User.id 참조)
+                </div>
+                <div class="legend-item">
+                    <strong>author:</strong> IUser - 작성자 정보 (선택, 관계 로딩)
+                </div>
+                <div class="legend-item">
+                    <strong>category:</strong> string - 게시글 카테고리 (선택, 예: notice, general, question, review, free)
+                </div>
+                <div class="legend-item">
+                    <strong>tags:</strong> string[] - 태그 목록 (선택, 배열)
+                </div>
+                <div class="legend-item">
+                    <strong>viewCount:</strong> number - 조회수 (기본값: 0)
+                </div>
+                <div class="legend-item">
+                    <strong>likeCount:</strong> number - 좋아요 수 (기본값: 0)
+                </div>
+                <div class="legend-item">
+                    <strong>commentCount:</strong> number - 댓글 수 (기본값: 0)
+                </div>
+                <div class="legend-item">
+                    <strong>isPublished:</strong> boolean - 공개 여부 (기본값: false)
+                </div>
+                <div class="legend-item">
+                    <strong>isPinned:</strong> boolean - 고정 여부 (기본값: false)
+                </div>
+                <div class="legend-item">
+                    <strong>createdAt:</strong> Date - 게시글 생성 날짜 (자동)
+                </div>
+                <div class="legend-item">
+                    <strong>updatedAt:</strong> Date - 게시글 수정 날짜 (자동)
+                </div>
+                <div class="legend-item">
+                    <strong>deletedAt:</strong> Date - 게시글 삭제 날짜 (선택, 소프트 삭제)
+                </div>
+            </div>
+        </div>
+
+        <div class="diagram-section">
+            <div class="section-title">5. 인터페이스 계층 구조</div>
+            <div class="legend">
+                <h3>🏗️ 아키텍처 레이어</h3>
+                <div class="legend-item">
+                    <strong>Controller Layer:</strong> IUserController, IPostController - HTTP 요청 처리
+                </div>
+                <div class="legend-item">
+                    <strong>Service Layer:</strong> IUserService, IPostService - 비즈니스 로직 처리
+                </div>
+                <div class="legend-item">
+                    <strong>Repository Layer:</strong> IUserRepository, IPostRepository - 데이터베이스 접근
+                </div>
+                <div class="legend-item">
+                    <strong>Interface Layer:</strong> IUser, IPost, ICreateUserRequest, ICreatePostRequest 등 - 데이터 계약
+                </div>
+                <div class="legend-item">
+                    <strong>Type Layer:</strong> UserRole, PostCategory, UserFilterOptions, PostFilterOptions 등 - 타입 정의
+                </div>
+            </div>
+        </div>
+
+        <div class="diagram-section">
+            <div class="section-title">6. 주요 특징</div>
+            <div class="legend">
+                <h3>✨ 설계 특징</h3>
+                <div class="legend-item">
+                    <strong>관계 로딩:</strong> Post 조회 시 author 필드를 통해 User 정보를 선택적으로 로드 가능
+                </div>
+                <div class="legend-item">
+                    <strong>소프트 삭제:</strong> Post의 deletedAt 필드로 논리적 삭제 구현
+                </div>
+                <div class="legend-item">
+                    <strong>메타데이터:</strong> viewCount, likeCount, commentCount로 게시글 인기도 추적
+                </div>
+                <div class="legend-item">
+                    <strong>상태 관리:</strong> isPublished, isPinned로 게시글 상태 제어
+                </div>
+                <div class="legend-item">
+                    <strong>필터링:</strong> PostFilterOptions, UserFilterOptions로 유연한 검색 지원
+                </div>
+                <div class="legend-item">
+                    <strong>페이지네이션:</strong> PostPaginationOptions, UserPaginationOptions로 대량 데이터 처리
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+        mermaid.contentLoaded();
+    </script>
+</body>
+</html>

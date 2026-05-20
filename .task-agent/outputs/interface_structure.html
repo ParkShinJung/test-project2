@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인터페이스 구조 다이어그램</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 14px;
+        }
+        .diagram-section {
+            margin-bottom: 40px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        .info-box {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f0f4ff;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+        }
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        .info-item {
+            margin-bottom: 10px;
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .info-item strong {
+            color: #333;
+        }
+        .code-block {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            margin-top: 10px;
+            border-left: 3px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏗️ 인터페이스 구조 및 계층 다이어그램</h1>
+        <p class="subtitle">User-Post 모듈의 아키텍처 및 인터페이스 관계</p>
+        
+        <div class="diagram-section">
+            <div class="section-title">1. 계층별 인터페이스 구조</div>
+            <div class="mermaid">
+graph TB
+    subgraph "HTTP Layer"
+        HTTP["HTTP Request/Response"]
+    end
+    
+    subgraph "Controller Layer"
+        UC["IUserController<br/>- getAllUsers<br/>- getUserById<br/>- createUser<br/>- updateUser<br/>- deleteUser<br/>- activateUser<br/>- deactivateUser"]
+        PC["IPostController<br/>- getAllPosts<br/>- getPostById<br/>- createPost<br/>- updatePost<br/>- deletePost<br/>- searchPosts<br/>- getPostsByAuthor<br/>- getPopularPosts"]
+    end
+    
+    subgraph "Service Layer"
+        US["IUserService<br/>- 비즈니스 로직<br/>- 유효성 검사<br/>- 트랜잭션 관리"]
+        PS["IPostService<br/>- 비즈니스 로직<br/>- 검색 처리<br/>- 통계 계산"]
+    end
+    
+    subgraph "Repository Layer"
+        UR["IUserRepository<br/>- find<br/>- findById<br/>- save<br/>- update<br/>- delete"]
+        PR["IPostRepository<br/>- find<br/>- findById<br/>- save<br/>- update<br/>- delete<br/>- search"]
+    end
+    
+    subgraph "Data Layer"
+        DB["Database<br/>PostgreSQL"]
+    end
+    
+    subgraph "Interface/Type Layer"
+        UI["IUser<br/>ICreateUserRequest<br/>IUpdateUserRequest<br/>IUserResponse<br/>IUserListResponse"]
+        PI["IPost<br/>ICreatePostRequest<br/>IUpdatePostRequest<br/>IPostResponse<br/>IPostListResponse<br/>IPostStatistics"]
+        UT["UserRole<br/>UserStatus<br/>UserFilterOptions<br/>UserPaginationOptions"]
+        PT["PostStatus<br/>PostCategory<br/>PostFilterOptions<br/>PostPaginationOptions<br/>PostSearchOptions"]
+    end
+    
+    HTTP --> UC
+    HTTP --> PC
+    UC --> US
+    PC --> PS
+    US --> UR
+    PS --> PR
+    UR --> DB
+    PR --> DB
+    UC -.-> UI
+    PC -.-> PI
+    US -.-> UI
+    PS -.-> PI
+    UR -.-> UI
+    PR -.-> PI
+    UI -.-> UT
+    PI -.-> PT
+            </div>
+        </div>
+
+        <div class="diagram-section">
+            <div class="section-title">2. User 모듈 인터페이스 상세</div>
+            <div class="info-box">
+                <h3>📋 IUser (기본 엔티티)</h3>
+                <div class="code-block">
+interface IUser {
+  id: string;                    // 사용자 고유 ID
+  name: string;                  // 사용자 이름
+  email: string;                 // 사용자 이메일
+  phone?: string;                // 사용자 전화번호 (선택)
+  address?: string;              // 사용자 주소 (선택)
+  createdAt: Date;               // 생성 날짜
+  updatedAt: Date;               // 수정 날짜
+  isActive: boolean;             // 활성화 여부
+}
+                </div>
+            </div>
+            <div class="info-box">
+                <h3>📋 ICreateUserRequest (생성 요청)</h3>
+                <div class="code-block">
+interface ICreateUserRequest {
+  name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+}
+                </div>
+            </div>
+            <div class="info-box">
+                <h3>📋 IUpdateUserRequest (수정 요청)</h3>
+                <div class="code-block">
+interface IUpdateUserRequest {
+  name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  isActive?: boolean;
+}
+                </div>
+            </div>
+            <div class="info-box">
+                <h3>📋 User 관련 타입</h3>
+                <div class="info-item">
+                    <strong>UserRole:</strong> 'admin' | 'user' | 'guest'
+                </div>
+                <div class="info-item">
+                    <strong>UserStatus:</strong> 'active' | 'inactive' | 'suspended' | 'deleted'
+                </div>
+                <div class="info-item">
+                    <strong>UserGender:</strong> 'male' | 'female' | 'other' | 'not_specified'
+                </div>
+                <div class="info-item">
+                    <strong>UserSortBy:</strong> 'id' | 'name' | 'email' | 'createdAt' | 'updatedAt'
+                </div>
+            </div>
+        </div>
+
+        <div class="diagram-section">
+            <div class="section-title">3. Post 모듈 인터페이스 상세</div>
+            <div class="info-box">
+                <h3>📋 IPost (기본 엔티티)</h3>
+                <div class="code-block">
+interface IPost {
+  id: string;                    // 게시글 고유 ID
+  title: string;                 // 게시글 제목
+  content: string;               // 게시글 내용
+  authorId: string;              // 작성자 ID (FK)
+  author?: IUser;                // 작성자 정보 (선택)
+  category?: string;             // 카테고리
+  tags?: string[];               // 태그 목록
+  viewCount: number;             // 조회수
+  likeCount: number;             // 좋아요 수
+  commentCount: number;          // 댓글 수
+  createdAt: Date;               // 생성 날짜
+  updatedAt: Date;               // 수정 날짜
+  deletedAt?: Date;              // 삭제 날짜 (소프트 삭제)
+  isPublished: boolean;          // 공개 여부
+  isPinned: boolean;             // 고정 여부
+}
+                </div>
+            </div>
+            <div class="info-box">
+                <h3>📋 ICreatePostRequest (생성 요청)</h3>
+                <div class="code-block">
+interface ICreatePostRequest {
+  title: string;
+  content: string;
+  authorId: string;
+  category?: string;
+  tags?: string[];
+  isPublished?: boolean;
+}
+                </div>
+            </div>
+            <div class="info-box">
+                <h3>📋 IUpdatePostRequest (수정 요청)</h3>
+                <div class="code-block">
+interface IUpdatePostRequest {
+  title?: string;
+  content?: string;
+  category?: string;
+  tags?: string[];
+  isPublished?: boolean;
+  isPinned?: boolean;
+}
+                </div>
+            </div>
+            <div class="info-box">
+                <h3>📋 Post 관련 타입</h3>
+                <div class="info-item">
+                    <strong>PostStatus:</strong> 'draft' | 'published' | 'archived' | 'deleted'
+                </div>
+                <div class="info-item">
+                    <strong>PostCategory:</strong> 'notice' | 'general' | 'question' | 'review' | 'free' | 'other'
+                </div>
+                <div class="info-item">
+                    <strong>PostSortBy:</strong> 'id' | 'title' | 'createdAt' | 'updatedAt' | 'viewCount' | 'likeCount' | 'commentCount'
+                </div>
+                <div class="info-item">
+                    <strong>PostFilterOptions:</strong> category, authorId, isPublished, isPinned, tags, createdAfter, createdBefore, minViewCount, minLikeCount, searchKeyword
+                </div>
+                <div class="info-item">
+                    <strong>PostSearchOptions:</strong> keyword, searchIn, category, authorId
+                </div>
+            </div>
+        </div>
+
+        <div class="diagram-section">
+            <div class="section-title">4. 응답 인터페이스</div>
+            <div class="info-box">
+                <h3>📋 IUserResponse & IUserListResponse</h3>
+                <div class="code-block">
+interface IUserResponse {
+  success: boolean;
+  data?: IUser;
+  message?: string;
+  error?: string;
+}
+
+interface IUserListResponse {
+  success: boolean;
+  data?: IUser[];
+  total?: number;
+  message?: string;
+  error?: string;
+}
+                </div>
+            </div>
+            <div class="info-box">
+                <h3>📋 IPostResponse & IPostListResponse</h3>
+                <div class="code-block">
+interface IPostResponse {
+  success: boolean;
+  data?: IPost;
+  message?: string;
+  error?: string;
+}
+
+interface IPostListResponse {
+  success: boolean;
+  data?: IPost[];
+  total?: number;
+  page?: number;
+  limit?: number;
+  message?: string;
+  error?: string;
+}
+                </div>
+            </div>
+            <div class="info-box">
+                <h3>📋 IPostStatistics</h3>
+                <div class="code-block">
+interface IPostStatistics {
+  totalPosts: number;
+  totalViews: number;
+  totalLikes: number;
+  averageComments: number;
+  postsPerCategory: Record&lt;string, number&gt;;
+}
+                </div>
+            </div>
+        </div>
+
+        <div class="diagram-section">
+            <div class="section-title">5. 관계 및 의존성</div>
+            <div class="info-box">
+                <h3>🔗 User-Post 관계</h3>
+                <div class="info-item">
+                    <strong>관계 유형:</strong> One-to-Many (1:N)
+                </div>
+                <div class="info-item">
+                    <strong>외래키:</strong> Post.authorId → User.id
+                </div>
+                <div class="info-item">
+                    <strong>카디널리티:</strong> User (1) : Post (0..*)
+                </div>
+                <div class="info-item">
+                    <strong>설명:</strong> 한 명의 사용자는 여러 개의 게시글을 작성할 수 있습니다.
+                </div>
+            </div>
+            <div class="info-box">
+                <h3>📦 모듈 의존성</h3>
+                <div class="info-item">
+                    <strong>Post 모듈:</strong> User 인터페이스에 의존 (IUser 타입 참조)
+                </div>
+                <div class="info-item">
+                    <strong>User 모듈:</strong> 독립적 (다른 모듈에 의존하지 않음)
+                </div>
+                <div class="info-item">
+                    <strong>공통 의존:</strong> 공통 타입, 데코레이터, 필터, 인터셉터
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+        mermaid.contentLoaded();
+    </script>
+</body>
+</html>
